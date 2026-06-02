@@ -90,46 +90,45 @@ export function ReviewsTable({ reviews, onApprove, onDelete }: ReviewsTableProps
               key={review.id}
               className="bg-surface border border-border rounded-sm p-5"
             >
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <div className="flex items-center gap-3 flex-wrap mb-1">
-                    <span className="font-display text-lg tracking-wider text-text-primary">
-                      {review.client_name}
-                    </span>
-                    <StarRating value={review.rating} size="sm" />
-                    <Badge variant={review.is_approved ? 'green' : 'yellow'}>
-                      {review.is_approved ? 'Approved' : 'Pending'}
-                    </Badge>
-                  </div>
-                  <div className="text-[11px] text-text-muted font-body">
-                    {formatDateShort(review.created_at)}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {!review.is_approved && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      isLoading={loadingId === review.id}
-                      onClick={() => handleApprove(review.id)}
-                    >
-                      Approve
-                    </Button>
-                  )}
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => setConfirmDeleteId(review.id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
+              <div className="flex items-center gap-3 flex-wrap mb-1">
+                <span className="font-display text-lg tracking-wider text-text-primary">
+                  {review.client_name}
+                </span>
+                <StarRating value={review.rating} size="sm" />
+                <Badge variant={review.is_approved ? 'green' : 'yellow'}>
+                  {review.is_approved ? 'Approved' : 'Pending'}
+                </Badge>
+              </div>
+              <div className="text-[11px] text-text-muted font-body">
+                {formatDateShort(review.created_at)}
               </div>
 
               <p className="text-text-muted text-sm font-body leading-relaxed mt-3 pl-0.5">
                 &ldquo;{review.comment}&rdquo;
               </p>
+
+              {/* Action row — always visible, full-width on mobile */}
+              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
+                {!review.is_approved && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    isLoading={loadingId === review.id}
+                    onClick={() => handleApprove(review.id)}
+                    className="flex-1 sm:flex-none"
+                  >
+                    Approve
+                  </Button>
+                )}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setConfirmDeleteId(review.id)}
+                  className="flex-1 sm:flex-none"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           ))
         )}

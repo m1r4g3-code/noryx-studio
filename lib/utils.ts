@@ -66,7 +66,11 @@ export function getWhatsAppLink(phone: string, message: string): string {
 }
 
 export function galleryImageUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  // Strip any stray BOM / whitespace that can sneak into the env var value
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? '')
+    .replace(/^﻿/, '')
+    .trim()
+    .replace(/\/$/, '')
   return `${base}/storage/v1/object/public/gallery/${path}`
 }
 

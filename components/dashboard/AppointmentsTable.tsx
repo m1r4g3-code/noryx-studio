@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { formatDateShort, formatTime, getStatusColor } from '@/lib/utils'
+import { cn, formatDateShort, formatTime, getStatusColor } from '@/lib/utils'
 import type { ActionResult, AppointmentStatus, AppointmentWithService } from '@/types'
 
 interface AppointmentsTableProps {
@@ -226,14 +226,54 @@ export function AppointmentsTable({
                 </div>
               ))}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setDetailAppt(null)}
-              className="mt-2"
-            >
-              Close
-            </Button>
+            {/* Change status — works on mobile and desktop */}
+            <div className="border-t border-border pt-4">
+              <div className="text-[10px] uppercase tracking-[0.12em] text-text-muted font-body font-semibold mb-2">
+                Change Status
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(['pending', 'confirmed', 'completed', 'cancelled'] as AppointmentStatus[]).map((s) => (
+                  <button
+                    key={s}
+                    disabled={updatingId === detailAppt.id}
+                    onClick={async () => {
+                      await handleStatusChange(detailAppt.id, s)
+                      setDetailAppt((prev) => (prev ? { ...prev, status: s } : prev))
+                    }}
+                    className={cn(
+                      'px-3 py-2.5 text-xs font-semibold uppercase tracking-[0.1em] rounded-sm border transition-colors disabled:opacity-50',
+                      detailAppt.status === s
+                        ? 'bg-gold/10 border-gold/40 text-gold'
+                        : 'bg-surface border-border text-text-muted hover:border-gold/40 hover:text-text-primary'
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDetailAppt(null)}
+                className="flex-1"
+              >
+                Close
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => {
+                  setConfirmDeleteId(detailAppt.id)
+                  setDetailAppt(null)
+                }}
+                className="flex-1"
+              >
+                Delete
+              </Button>
+            </div>
           </div>
         )}
       </Modal>
