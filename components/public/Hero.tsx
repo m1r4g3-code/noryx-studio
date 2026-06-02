@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { Button } from '@/components/ui/Button'
+import { HeroParallaxBg } from '@/components/public/HeroParallaxBg'
 import type { HeroSettings } from '@/types'
 
 export async function Hero() {
@@ -20,6 +21,9 @@ export async function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-bg noise-overlay">
+      {/* Parallax barbershop background */}
+      <HeroParallaxBg />
+
       {/* Animated geometric lines */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="geometric-line top-[20%] animate-geometric-slow opacity-60" />
