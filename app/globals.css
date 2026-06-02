@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: #0a0a0a;
+    color: #f5f5f5;
+    font-family: var(--font-rajdhani), var(--font-exo2), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #111111;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c9a84c;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(201, 168, 76, 0.25);
+    color: #f5f5f5;
+  }
+}
+
+@layer components {
+  /* Navbar glass effect */
+  .glass-navbar {
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  /* Gold glow text effect */
+  .text-gold-glow {
+    text-shadow: 0 0 20px rgba(201, 168, 76, 0.5), 0 0 40px rgba(201, 168, 76, 0.2);
+  }
+
+  /* Hero geometric decorative lines */
+  .geometric-line {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.12), transparent);
+    height: 1px;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .geometric-diamond {
+    position: absolute;
+    border: 1px solid rgba(201, 168, 76, 0.08);
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+
+  /* Section spacing */
+  .section-padding {
+    @apply py-20 px-4 md:px-8 lg:px-16;
+  }
+
+  /* Display font shorthand */
+  .font-display-heading {
+    font-family: var(--font-bebas), var(--font-orbitron), sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Gold underline hover effect */
+  .gold-underline {
+    position: relative;
+  }
+  .gold-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #c9a84c;
+    transition: width 0.3s ease;
+  }
+  .gold-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Card hover glow */
+  .card-hover-glow {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-hover-glow:hover {
+    border-color: #c9a84c;
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
+  }
+}
+
+@layer utilities {
+  /* react-day-picker dark overrides */
+  .rdp {
+    --rdp-cell-size: 42px;
+    --rdp-accent-color: #c9a84c;
+    --rdp-background-color: rgba(201, 168, 76, 0.1);
+    --rdp-outline: 2px solid #c9a84c;
+    --rdp-outline-selected: 2px solid #c9a84c;
+    margin: 0;
+    width: 100%;
+  }
+
+  .rdp-months {
+    justify-content: center;
+  }
+
+  .rdp-caption_label {
+    font-family: var(--font-bebas), sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: #f5f5f5;
+  }
+
+  .rdp-nav_button {
+    color: #f5f5f5;
+    border: 1px solid #2a2a2a;
+    width: 32px;
+    height: 32px;
+    border-radius: 2px;
+    transition: border-color 0.2s;
+  }
+
+  .rdp-nav_button:hover {
+    border-color: #c9a84c;
+    background: rgba(201, 168, 76, 0.08);
+  }
+
+  .rdp-head_cell {
+    color: #888;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .rdp-day {
+    color: #f5f5f5;
+    border-radius: 2px;
+    font-size: 0.875rem;
+    transition: background 0.2s;
+  }
+
+  .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled) {
+    background: rgba(201, 168, 76, 0.12);
+    color: #c9a84c;
+  }
+
+  .rdp-day_selected {
+    background-color: #c9a84c !important;
+    color: #0a0a0a !important;
+    font-weight: 700;
+  }
+
+  .rdp-day_today:not(.rdp-day_selected) {
+    color: #c9a84c;
+    font-weight: 700;
+  }
+
+  .rdp-day_disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+  }
+
+  /* Noise texture overlay for hero */
+  .noise-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
