@@ -1,17 +1,8 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getApprovedReviews } from '@/lib/data/content'
 import { ReviewsSectionClient } from '@/components/public/ReviewsSectionClient'
-import type { Review } from '@/types'
 
 export async function ReviewsSection() {
-  const supabase = createServerSupabaseClient()
-  const { data } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('is_approved', true)
-    .order('created_at', { ascending: false })
-    .limit(9)
-
-  const reviews = (data ?? []) as Review[]
+  const reviews = await getApprovedReviews(9)
 
   return (
     <section id="reviews" className="section-padding bg-bg">

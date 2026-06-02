@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { StarRating } from '@/components/ui/StarRating'
 import { reviewSchema, type ReviewFormValues } from '@/lib/validations'
-import { createClient } from '@/lib/supabase'
+import { submitReview } from '@/app/review/actions'
 
 interface ReviewFormProps {
   /** When provided, shows a Cancel button (used inside the modal) */
@@ -36,16 +36,14 @@ export function ReviewForm({ onCancel }: ReviewFormProps) {
 
   const onSubmit = async (data: ReviewFormValues) => {
     setServerError('')
-    const supabase = createClient()
-    const { error } = await supabase.from('reviews').insert({
+    const res = await submitReview({
       client_name: data.client_name,
       rating: data.rating,
       comment: data.comment,
-      is_approved: false,
     })
 
-    if (error) {
-      setServerError('Something went wrong. Please try again.')
+    if (res.error) {
+      setServerError(res.error)
       return
     }
     setSubmitted(true)

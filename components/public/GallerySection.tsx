@@ -1,18 +1,10 @@
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getGalleryItems } from '@/lib/data/content'
 import { GalleryGrid } from '@/components/public/GalleryGrid'
 import { Button } from '@/components/ui/Button'
-import type { GalleryItem } from '@/types'
 
 export async function GallerySection() {
-  const supabase = createServerSupabaseClient()
-  const { data } = await supabase
-    .from('gallery')
-    .select('*')
-    .order('display_order', { ascending: true })
-    .limit(8)
-
-  const items = (data ?? []) as GalleryItem[]
+  const items = await getGalleryItems(8)
 
   // Don't render the section at all if there are no photos yet
   if (items.length === 0) return null

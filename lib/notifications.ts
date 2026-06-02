@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { formatTime, toNigerianIntl } from '@/lib/utils'
 import type { Appointment } from '@/types'
 
@@ -77,7 +77,7 @@ export async function sendBarberNewBookingNotification(
   barberEmail?: string | null,
   barberPhone?: string | null
 ): Promise<void> {
-  const dateStr = format(new Date(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
+  const dateStr = format(parseISO(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
   const timeStr = formatTime(appointment.appointment_time)
 
   if (barberEmail) {
@@ -101,7 +101,7 @@ export async function sendBarberNewBookingNotification(
 export async function sendClientConfirmationNotification(
   appointment: AppointmentWithService
 ): Promise<void> {
-  const dateStr = format(new Date(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
+  const dateStr = format(parseISO(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
   const timeStr = formatTime(appointment.appointment_time)
 
   if (appointment.client_email) {
@@ -124,7 +124,7 @@ export async function sendClientConfirmationNotification(
 export async function sendClientCancellationNotification(
   appointment: AppointmentWithService
 ): Promise<void> {
-  const dateStr = format(new Date(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
+  const dateStr = format(parseISO(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
   const timeStr = formatTime(appointment.appointment_time)
 
   if (appointment.client_email) {
@@ -146,7 +146,7 @@ export async function sendClientCancellationNotification(
 export async function sendClientCompletedNotification(
   appointment: AppointmentWithService
 ): Promise<void> {
-  const dateStr = format(new Date(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
+  const dateStr = format(parseISO(appointment.appointment_date), 'EEEE, MMMM d, yyyy')
   const timeStr = formatTime(appointment.appointment_time)
 
   if (appointment.client_email) {

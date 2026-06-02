@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getActiveServices } from '@/lib/data/content'
 import { Button } from '@/components/ui/Button'
 import { formatCurrency } from '@/lib/utils'
 import type { Service } from '@/types'
@@ -37,14 +37,7 @@ function ServiceCard({ service }: { service: Service }) {
 }
 
 export async function ServicesSection() {
-  const supabase = createServerSupabaseClient()
-  const { data } = await supabase
-    .from('services')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true })
-
-  const services: Service[] = data ?? []
+  const services: Service[] = await getActiveServices()
 
   return (
     <section id="services" className="section-padding bg-bg">

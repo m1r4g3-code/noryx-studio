@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { cn, formatDateShort, formatTime, getStatusColor } from '@/lib/utils'
+import { cn, formatDateShort, formatTime } from '@/lib/utils'
 import type { ActionResult, AppointmentStatus, AppointmentWithService } from '@/types'
 
 interface AppointmentsTableProps {

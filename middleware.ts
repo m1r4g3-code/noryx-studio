@@ -32,23 +32,24 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session — required on every request
+  // Revalidate the auth token against the Supabase Auth server (not just decode
+  // the cookie). getUser() is the trustworthy check; it also refreshes cookies.
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
 
   // If already authenticated and hitting login, redirect to dashboard
-  if (pathname === '/admin/login' && session) {
+  if (pathname === '/admin/login' && user) {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-  // If hitting a protected admin route without a session, redirect to login
+  // If hitting a protected admin route without a valid user, redirect to login
   if (
     pathname.startsWith('/admin') &&
     pathname !== '/admin/login' &&
-    !session
+    !user
   ) {
     const loginUrl = new URL('/admin/login', request.url)
     loginUrl.searchParams.set('redirectTo', pathname)

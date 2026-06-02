@@ -17,6 +17,16 @@ export function createServiceRoleClient() {
   )
 }
 
+// Cookieless anon client — safe to use inside unstable_cache() for public reads
+// (no cookies() call, so the surrounding read can be cached/static).
+export function createAnonServerClient() {
+  return createClient(
+    clean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+    clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  )
+}
+
 // Server client — use in Server Components, Server Actions, Route Handlers.
 // This file is server-only and must never be imported by a client component.
 export function createServerSupabaseClient() {

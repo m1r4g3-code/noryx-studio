@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getGalleryItems } from '@/lib/data/content'
 import { Navbar } from '@/components/public/Navbar'
 import { Footer } from '@/components/public/Footer'
 import { GalleryGrid } from '@/components/public/GalleryGrid'
 import { Button } from '@/components/ui/Button'
-import type { GalleryItem } from '@/types'
 
 export const metadata: Metadata = {
   title: 'Gallery',
@@ -13,13 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GalleryPage() {
-  const supabase = createServerSupabaseClient()
-  const { data } = await supabase
-    .from('gallery')
-    .select('*')
-    .order('display_order', { ascending: true })
-
-  const items = (data ?? []) as GalleryItem[]
+  const items = await getGalleryItems()
 
   return (
     <div className="min-h-screen bg-bg">

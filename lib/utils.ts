@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { format, parse } from 'date-fns'
+import { format, parse, parseISO } from 'date-fns'
 import type { AppointmentStatus } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export function generateReference(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   const random = Array.from(
-    { length: 4 },
+    { length: 6 },
     () => chars[Math.floor(Math.random() * chars.length)]
   ).join('')
   return `NORYX-${random}`
@@ -25,13 +25,15 @@ export function formatCurrency(amount: number): string {
   }).format(amount)
 }
 
+// parseISO keeps date-only strings ("2026-06-02") at LOCAL midnight, avoiding the
+// UTC-parsing off-by-one-day bug that `new Date("2026-06-02")` causes.
 export function formatDate(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === 'string' ? parseISO(date) : date
   return format(d, 'MMMM d, yyyy')
 }
 
 export function formatDateShort(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+  const d = typeof date === 'string' ? parseISO(date) : date
   return format(d, 'MMM d, yyyy')
 }
 

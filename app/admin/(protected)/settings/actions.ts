@@ -1,10 +1,19 @@
 'use server'
 
+import { revalidateTag } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { CACHE_TAGS } from '@/lib/constants'
+import { settingsSchema, type SettingsFormValues } from '@/lib/validations'
 import type { ActionResult } from '@/types'
-import type { SettingsFormValues } from '@/lib/validations'
 
 export async function saveSettings(data: SettingsFormValues): Promise<ActionResult> {
+  // Re-validate on the server — never trust the client form
+  const parsed = settingsSchema.safeParse(data)
+  if (!parsed.success) {
+    return { data: null, error: 'Some settings are invalid. Please check the form.' }
+  }
+  data = parsed.data
+
   const supabase = createServerSupabaseClient()
 
   const upserts = [
@@ -49,5 +58,6 @@ export async function saveSettings(data: SettingsFormValues): Promise<ActionResu
     if (error) return { data: null, error: error.message }
   }
 
+  revalidateTag(CACHE_TAGS.settings)
   return { data: null, error: null }
 }

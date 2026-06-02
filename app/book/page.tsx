@@ -82,7 +82,16 @@ function BookingSuccessScreen({
               Add to WhatsApp
             </Button>
           </a>
-          <Link href="/">
+          <Link
+            href="/"
+            onClick={() => {
+              try {
+                sessionStorage.removeItem('noryx_booking_confirmed')
+              } catch {
+                /* noop */
+              }
+            }}
+          >
             <Button variant="ghost" size="lg" className="w-full">
               Back to Home
             </Button>
@@ -107,6 +116,32 @@ function BookPageContent() {
   const [services, setServices] = useState<Service[]>([])
   const [bookingEnabled, setBookingEnabled] = useState(true)
   const [loadingServices, setLoadingServices] = useState(true)
+
+  // Restore a just-completed booking so a page refresh doesn't lose the reference
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('noryx_booking_confirmed')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        setConfirmedReference(parsed.reference)
+        setBookingData(parsed.bookingData ?? {})
+      }
+    } catch {
+      // ignore malformed storage
+    }
+  }, [])
+
+  const completeBooking = (reference: string) => {
+    try {
+      sessionStorage.setItem(
+        'noryx_booking_confirmed',
+        JSON.stringify({ reference, bookingData })
+      )
+    } catch {
+      // storage may be unavailable (private mode) — non-fatal
+    }
+    setConfirmedReference(reference)
+  }
 
   useEffect(() => {
     const init = async () => {
@@ -257,7 +292,7 @@ function BookPageContent() {
               <ConfirmBooking
                 bookingData={bookingData as BookingFormData}
                 onBack={() => setStep(3)}
-                onSuccess={(reference) => setConfirmedReference(reference)}
+                onSuccess={(reference) => completeBooking(reference)}
               />
             )}
           </>

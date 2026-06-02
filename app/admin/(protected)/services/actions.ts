@@ -1,6 +1,8 @@
 'use server'
 
+import { revalidateTag } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { CACHE_TAGS } from '@/lib/constants'
 import type { ActionResult } from '@/types'
 import type { ServiceFormValues } from '@/lib/validations'
 
@@ -15,6 +17,7 @@ export async function createService(data: ServiceFormValues): Promise<ActionResu
     display_order: data.display_order,
   })
   if (error) return { data: null, error: error.message }
+  revalidateTag(CACHE_TAGS.services)
   return { data: null, error: null }
 }
 
@@ -35,13 +38,24 @@ export async function updateService(
     })
     .eq('id', id)
   if (error) return { data: null, error: error.message }
+  revalidateTag(CACHE_TAGS.services)
   return { data: null, error: null }
 }
 
 export async function deleteService(id: string): Promise<ActionResult> {
   const supabase = createServerSupabaseClient()
   const { error } = await supabase.from('services').delete().eq('id', id)
-  if (error) return { data: null, error: error.message }
+  if (error) {
+    // Foreign-key violation: appointments still reference this service
+    if (error.code === '23503') {
+      return {
+        data: null,
+        error: 'This service has appointments linked to it. Mark it inactive instead of deleting.',
+      }
+    }
+    return { data: null, error: error.message }
+  }
+  revalidateTag(CACHE_TAGS.services)
   return { data: null, error: null }
 }
 
@@ -55,6 +69,7 @@ export async function toggleServiceActive(
     .update({ is_active: isActive })
     .eq('id', id)
   if (error) return { data: null, error: error.message }
+  revalidateTag(CACHE_TAGS.services)
   return { data: null, error: null }
 }
 

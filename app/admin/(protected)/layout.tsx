@@ -8,11 +8,12 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const supabase = createServerSupabaseClient()
+  // getUser() revalidates the JWT with the Auth server — the authoritative gate.
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     redirect('/admin/login')
   }
 

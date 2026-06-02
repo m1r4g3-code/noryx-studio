@@ -1,20 +1,13 @@
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getPublicSettings } from '@/lib/data/settings'
 import { Button } from '@/components/ui/Button'
 import { HeroParallaxBg } from '@/components/public/HeroParallaxBg'
-import type { HeroSettings } from '@/types'
 
 export async function Hero() {
-  const supabase = createServerSupabaseClient()
-  const { data: heroSetting } = await supabase
-    .from('settings')
-    .select('value')
-    .eq('key', 'hero')
-    .single()
-
-  const hero = (heroSetting?.value as HeroSettings | null) ?? {
-    headline: 'PRECISION. STYLE. IDENTITY.',
-    subheadline: 'Premium grooming experience in Lagos.',
+  const settings = await getPublicSettings()
+  const hero = {
+    headline: settings.hero_headline,
+    subheadline: settings.hero_subheadline,
   }
 
   const words = hero.headline.split(' ')

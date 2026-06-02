@@ -53,16 +53,12 @@ export function DateTimeSelect({
       setLoadingSlots(true)
       const supabase = createClient()
       const dateStr = format(selectedDate, 'yyyy-MM-dd')
-      const { data } = await supabase
-        .from('appointments')
-        .select('appointment_time')
-        .eq('appointment_date', dateStr)
-        .in('status', ['pending', 'confirmed'])
+      // Availability via a narrow RPC — appointments rows are not publicly readable
+      const { data } = await supabase.rpc('booked_times', { d: dateStr })
 
-      const times = (data ?? []).map((a: { appointment_time: string }) => {
-        // Normalize HH:MM:SS → HH:MM
-        return a.appointment_time.substring(0, 5)
-      })
+      const times = ((data as string[] | null) ?? []).map((t) =>
+        t.substring(0, 5)
+      )
       setBookedTimes(times)
       setLoadingSlots(false)
     }

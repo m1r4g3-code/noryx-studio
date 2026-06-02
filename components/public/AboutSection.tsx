@@ -1,5 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import type { AboutSettings } from '@/types'
+import { getPublicSettings } from '@/lib/data/settings'
 
 const stats = [
   { value: '5+', label: 'Years Experience' },
@@ -9,16 +8,8 @@ const stats = [
 ]
 
 export async function AboutSection() {
-  const supabase = createServerSupabaseClient()
-  const { data: aboutSetting } = await supabase
-    .from('settings')
-    .select('value')
-    .eq('key', 'about')
-    .single()
-
-  const about = (aboutSetting?.value as AboutSettings | null) ?? {
-    text: 'Noryx Studio is where precision meets style. Our master barbers bring years of experience and an unwavering passion for the perfect cut.',
-  }
+  const settings = await getPublicSettings()
+  const about = { text: settings.about_text }
 
   return (
     <section id="about" className="section-padding bg-surface">

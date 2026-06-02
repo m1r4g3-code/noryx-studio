@@ -28,13 +28,39 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
+    const getFocusable = () =>
+      Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        ) ?? []
+      )
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      // Trap Tab focus inside the dialog
+      if (e.key === 'Tab') {
+        const focusable = getFocusable()
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        const active = document.activeElement as HTMLElement
+        if (e.shiftKey && active === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
     }
     document.addEventListener('keydown', handleKeyDown)
 
-    // Focus the panel
-    panelRef.current?.focus()
+    // Focus the first focusable element (or the panel)
+    const focusable = getFocusable()
+    ;(focusable[0] ?? panelRef.current)?.focus()
 
     return () => {
       document.body.style.overflow = prevOverflow

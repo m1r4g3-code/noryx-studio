@@ -1,20 +1,13 @@
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { getPublicSettings } from '@/lib/data/settings'
 import { Button } from '@/components/ui/Button'
-import type { ContactSettings } from '@/types'
 
 export async function BookingCTABanner() {
-  const supabase = createServerSupabaseClient()
-  const { data: contactSetting } = await supabase
-    .from('settings')
-    .select('value')
-    .eq('key', 'contact')
-    .single()
-
-  const contact = (contactSetting?.value as ContactSettings | null) ?? {
-    phone: '09162035059',
-    email: 'sain.tcuts3@gmail.com',
-    whatsapp: '2349162035059',
+  const settings = await getPublicSettings()
+  const contact = {
+    phone: settings.contact_phone,
+    email: settings.contact_email,
+    whatsapp: settings.contact_whatsapp,
   }
 
   const waLink = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hi! I'd like to book an appointment at Noryx Studio.")}`

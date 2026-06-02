@@ -1,6 +1,8 @@
 'use server'
 
+import { revalidateTag } from 'next/cache'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { CACHE_TAGS } from '@/lib/constants'
 import type { ActionResult } from '@/types'
 
 export async function createGalleryItem(
@@ -26,6 +28,7 @@ export async function createGalleryItem(
   })
 
   if (error) return { data: null, error: error.message }
+  revalidateTag(CACHE_TAGS.gallery)
   return { data: null, error: null }
 }
 
@@ -39,6 +42,7 @@ export async function updateGalleryCaption(
     .update({ caption: caption.trim() || null })
     .eq('id', id)
   if (error) return { data: null, error: error.message }
+  revalidateTag(CACHE_TAGS.gallery)
   return { data: null, error: null }
 }
 
@@ -53,6 +57,7 @@ export async function deleteGalleryItem(
 
   const { error } = await supabase.from('gallery').delete().eq('id', id)
   if (error) return { data: null, error: error.message }
+  revalidateTag(CACHE_TAGS.gallery)
   return { data: null, error: null }
 }
 
