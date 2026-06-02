@@ -4,21 +4,33 @@ import type { Appointment } from '@/types'
 
 type AppointmentWithService = Appointment & { service_name: string }
 
-// ─── Email via Resend ────────────────────────────────────────────────────────
+// ─── Email via Gmail SMTP (nodemailer) ───────────────────────────────────────
+// Uses a Gmail account + App Password. Sends to ANY recipient (unlike Resend's
+// unverified sandbox), ~500 emails/day — plenty for a barbershop.
 
 async function sendEmail(opts: {
   to: string
   subject: string
   html: string
 }): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.RESEND_FROM_EMAIL || 'Noryx Studio <noreply@noryxstudio.com>'
-  if (!apiKey) return
+  const user = process.env.GMAIL_USER
+  const pass = process.env.GMAIL_APP_PASSWORD
+  if (!user || !pass) return
+
+  const from = process.env.EMAIL_FROM || `Noryx Studio <${user}>`
 
   try {
-    const { Resend } = await import('resend')
-    const resend = new Resend(apiKey)
-    await resend.emails.send({ from, to: opts.to, subject: opts.subject, html: opts.html })
+    const nodemailer = (await import('nodemailer')).default
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass },
+    })
+    await transporter.sendMail({
+      from,
+      to: opts.to,
+      subject: opts.subject,
+      html: opts.html,
+    })
   } catch (err) {
     console.error('[Notifications] Email send failed:', err)
   }
