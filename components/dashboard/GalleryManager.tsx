@@ -15,7 +15,38 @@ import {
 } from '@/app/admin/(protected)/gallery/actions'
 import type { GalleryItem } from '@/types'
 
-const MAX_BYTES = 8 * 1024 * 1024 // 8MB
+const MAX_BYTES = 25 * 1024 * 1024 // 25MB raw input cap (compressed before upload)
+const MAX_DIM = 1600 // longest side after compression
+const WEBP_QUALITY = 0.82
+
+// Compress + resize in the browser to a WebP blob before upload.
+// Respects EXIF orientation; throws if the browser can't do it (caller falls back).
+async function compressImage(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
+  let { width, height } = bitmap
+  if (width > MAX_DIM || height > MAX_DIM) {
+    const scale = MAX_DIM / Math.max(width, height)
+    width = Math.round(width * scale)
+    height = Math.round(height * scale)
+  }
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    bitmap.close?.()
+    throw new Error('no canvas context')
+  }
+  ctx.drawImage(bitmap, 0, 0, width, height)
+  bitmap.close?.()
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error('toBlob failed'))),
+      'image/webp',
+      WEBP_QUALITY
+    )
+  })
+}
 
 export function GalleryManager({ items }: { items: GalleryItem[] }) {
   const router = useRouter()
@@ -38,23 +69,39 @@ export function GalleryManager({ items }: { items: GalleryItem[] }) {
     const total = files.length
     for (const file of Array.from(files)) {
       done++
-      setProgress(`Uploading ${done} of ${total}...`)
+      setProgress(`Processing ${done} of ${total}...`)
 
       if (!file.type.startsWith('image/')) {
         setError(`"${file.name}" is not an image — skipped.`)
         continue
       }
       if (file.size > MAX_BYTES) {
-        setError(`"${file.name}" is larger than 8MB — skipped.`)
+        setError(`"${file.name}" is larger than 25MB — skipped.`)
         continue
       }
 
-      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+      // Compress + resize to WebP in the browser before upload.
+      // Animated GIFs are uploaded as-is (canvas would flatten them).
+      let payload: Blob = file
+      let ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+      let contentType = file.type
+      if (file.type !== 'image/gif') {
+        try {
+          payload = await compressImage(file)
+          ext = 'webp'
+          contentType = 'image/webp'
+        } catch {
+          // Compression unsupported/failed — fall back to original
+          payload = file
+        }
+      }
+
+      setProgress(`Uploading ${done} of ${total}...`)
       const path = `${crypto.randomUUID()}.${ext}`
 
       const { error: upErr } = await supabase.storage
         .from('gallery')
-        .upload(path, file, { cacheControl: '3600', upsert: false })
+        .upload(path, payload, { cacheControl: '3600', upsert: false, contentType })
 
       if (upErr) {
         setError(`Upload failed for "${file.name}": ${upErr.message}`)
