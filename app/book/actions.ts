@@ -1,7 +1,7 @@
 'use server'
 
 import { format } from 'date-fns'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase-server'
 import { generateReference } from '@/lib/utils'
 import { sendBarberNewBookingNotification } from '@/lib/notifications'
 import type { BookingFormData, ActionResult, BarberContactSettings } from '@/types'
@@ -35,9 +35,12 @@ export async function createAppointment(
       return { data: null, error: 'Booking failed. Please try again.' }
     }
 
-    // Booking succeeded — send barber notification (best-effort, don't block on it)
+    // Booking succeeded — send barber notification (best-effort, don't block on it).
+    // Use the service-role client because barber_contact is not publicly readable
+    // under RLS, and bookings run as an anonymous user.
     try {
-      const { data: barberContactSetting } = await supabase
+      const admin = createServiceRoleClient()
+      const { data: barberContactSetting } = await admin
         .from('settings')
         .select('value')
         .eq('key', 'barber_contact')
