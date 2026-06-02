@@ -48,12 +48,17 @@ export function HeroParallaxBg() {
         style={{ transform: 'scale(1.18)', transition: 'transform 0.12s linear' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero.png"
-          alt=""
-          className="w-full h-full object-cover object-center select-none"
-          draggable={false}
-        />
+        <picture className="block w-full h-full">
+          <source srcSet="/hero.webp" type="image/webp" />
+          <img
+            src="/hero.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center select-none"
+            draggable={false}
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
       </div>
 
       {/* Brand-dark tint + readability gradients */}

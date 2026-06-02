@@ -242,6 +242,79 @@ export function ServicesTable({
         </table>
       </div>
 
+      {/* Mobile card view */}
+      <div className="md:hidden flex flex-col gap-3">
+        {services.length === 0 ? (
+          <p className="text-center text-text-muted py-8 font-body text-sm">No services yet.</p>
+        ) : (
+          services.map((service, index) => (
+            <div key={service.id} className="bg-surface border border-border rounded-sm p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-display text-lg tracking-wider text-text-primary">{service.name}</div>
+                  {service.description && (
+                    <div className="text-[11px] text-text-muted mt-0.5 line-clamp-2">{service.description}</div>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleToggle(service.id, service.is_active)}
+                  className="shrink-0"
+                  aria-label="Toggle active"
+                >
+                  <Badge variant={service.is_active ? 'gold' : 'muted'}>
+                    {service.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4 mt-3 text-sm font-body">
+                <span className="text-gold font-semibold">{formatCurrency(service.price)}</span>
+                <span className="text-text-muted">{service.duration_minutes} min</span>
+              </div>
+
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={index === 0}
+                    onClick={() => { onMoveUp(service.id); router.refresh() }}
+                    className="text-text-muted hover:text-gold disabled:opacity-20 transition-colors p-1.5 border border-border rounded-sm"
+                    aria-label="Move up"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                  </button>
+                  <button
+                    disabled={index === services.length - 1}
+                    onClick={() => { onMoveDown(service.id); router.refresh() }}
+                    className="text-text-muted hover:text-gold disabled:opacity-20 transition-colors p-1.5 border border-border rounded-sm"
+                    aria-label="Move down"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { setEditingService(service); setModalMode('edit'); setError('') }}
+                    className="text-xs font-semibold uppercase tracking-wider text-gold border border-gold/30 rounded-sm px-3 py-1.5 hover:bg-gold hover:text-bg transition-colors"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteId(service.id)}
+                    className="text-xs font-semibold uppercase tracking-wider text-red-400 border border-red-500/30 rounded-sm px-3 py-1.5 hover:bg-red-900/30 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Add / Edit modal */}
       <Modal
         isOpen={modalMode !== null}
