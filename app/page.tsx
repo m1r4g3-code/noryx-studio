@@ -4,6 +4,7 @@ import { Hero } from '@/components/public/Hero'
 import { ServicesSection } from '@/components/public/ServicesSection'
 import { AboutSection } from '@/components/public/AboutSection'
 import { ReviewsSection } from '@/components/public/ReviewsSection'
+import { GallerySection } from '@/components/public/GallerySection'
 import { BookingCTABanner } from '@/components/public/BookingCTABanner'
 import { Footer } from '@/components/public/Footer'
 
@@ -18,6 +19,7 @@ export default function HomePage() {
       <Hero />
       <ServicesSection />
       <AboutSection />
+      <GallerySection />
       <ReviewsSection />
       <BookingCTABanner />
       <Footer />

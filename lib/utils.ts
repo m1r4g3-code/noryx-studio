@@ -65,6 +65,11 @@ export function getWhatsAppLink(phone: string, message: string): string {
   return `https://wa.me/${intl}?text=${encodeURIComponent(message)}`
 }
 
+export function galleryImageUrl(path: string): string {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  return `${base}/storage/v1/object/public/gallery/${path}`
+}
+
 export function toNigerianIntl(phone: string): string {
   const cleaned = phone.replace(/\D/g, '')
   if (cleaned.startsWith('234')) return `+${cleaned}`

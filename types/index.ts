@@ -28,6 +28,14 @@ export type Appointment = {
   services?: Pick<Service, 'name' | 'price' | 'duration_minutes'>
 }
 
+export type GalleryItem = {
+  id: string
+  image_path: string
+  caption: string | null
+  display_order: number
+  created_at: string
+}
+
 export type Review = {
   id: string
   client_name: string
