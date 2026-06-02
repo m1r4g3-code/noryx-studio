@@ -1,7 +1,11 @@
 'use server'
 
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { sendClientConfirmationNotification } from '@/lib/notifications'
+import {
+  sendClientConfirmationNotification,
+  sendClientCancellationNotification,
+  sendClientCompletedNotification,
+} from '@/lib/notifications'
 import type { AppointmentStatus, ActionResult } from '@/types'
 
 export async function updateAppointmentStatus(
@@ -17,8 +21,8 @@ export async function updateAppointmentStatus(
 
   if (error) return { data: null, error: error.message }
 
-  // Send client notification when confirmed
-  if (status === 'confirmed') {
+  // Notify the client on confirmed / cancelled / completed (best-effort)
+  if (status === 'confirmed' || status === 'cancelled' || status === 'completed') {
     try {
       const { data: appt } = await supabase
         .from('appointments')
@@ -27,13 +31,13 @@ export async function updateAppointmentStatus(
         .single()
 
       if (appt) {
-        await sendClientConfirmationNotification({
-          ...appt,
-          service_name: appt.services?.name ?? 'Service',
-        })
+        const payload = { ...appt, service_name: appt.services?.name ?? 'Service' }
+        if (status === 'confirmed') await sendClientConfirmationNotification(payload)
+        else if (status === 'cancelled') await sendClientCancellationNotification(payload)
+        else if (status === 'completed') await sendClientCompletedNotification(payload)
       }
     } catch {
-      // Notification failure must never affect status update
+      // Notification failure must never affect the status update
     }
   }
 
