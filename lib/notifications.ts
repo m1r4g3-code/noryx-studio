@@ -25,16 +25,38 @@ function firstName(full: string): string {
 // Uses a Gmail account + App Password. Sends to ANY recipient (unlike Resend's
 // unverified sandbox), ~500 emails/day — plenty for a barbershop.
 
+// Derive a plain-text version from HTML. A text/plain alternative materially
+// improves deliverability (HTML-only mail is a spam signal).
+function htmlToText(html: string): string {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<head[\s\S]*?<\/head>/gi, '')
+    .replace(/<\/(p|div|tr|h1|h2|h3|li)>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<a [^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '$2 ($1)')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&[a-z#0-9]+;/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .split('\n')
+    .map((l) => l.trim())
+    .join('\n')
+    .trim()
+}
+
 async function sendEmail(opts: {
   to: string
   subject: string
   html: string
+  text?: string
 }): Promise<void> {
   const user = process.env.GMAIL_USER
   const pass = process.env.GMAIL_APP_PASSWORD
   if (!user || !pass) return
 
   const from = process.env.EMAIL_FROM || `Noryx Studio <${user}>`
+  const replyTo = process.env.EMAIL_REPLY_TO || user
 
   try {
     const nodemailer = (await import('nodemailer')).default
@@ -45,8 +67,15 @@ async function sendEmail(opts: {
     await transporter.sendMail({
       from,
       to: opts.to,
+      replyTo,
       subject: opts.subject,
       html: opts.html,
+      // Multipart: text/plain + text/html improves inbox placement
+      text: opts.text ?? htmlToText(opts.html),
+      headers: {
+        'List-Unsubscribe': `<mailto:${user}?subject=unsubscribe>`,
+        'X-Entity-Ref-ID': `noryx-${Date.now()}`,
+      },
     })
   } catch (err) {
     console.error('[Notifications] Email send failed:', err)
