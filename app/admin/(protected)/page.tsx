@@ -29,9 +29,10 @@ export default async function AdminDashboardPage() {
 
   const pending = (allAppointments ?? []).filter((a) => a.status === 'pending').length
   const todayCount = todayData?.length ?? 0
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const totalRevenue = (revenueData ?? []).reduce((sum: number, a: any) => {
-    const svc = Array.isArray(a.services) ? a.services[0] : a.services
+  type RevenueRow = { services: { price: number } | { price: number }[] | null }
+  const totalRevenue = (revenueData ?? []).reduce<number>((sum, row) => {
+    const services = (row as RevenueRow).services
+    const svc = Array.isArray(services) ? services[0] : services
     return sum + (svc?.price ?? 0)
   }, 0)
 
